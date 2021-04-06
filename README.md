@@ -77,7 +77,7 @@
 
 ## #2
 ## <KITTI dataset>
-
+-----------------------
 ![image](https://user-images.githubusercontent.com/81850912/113658991-18eba500-96dc-11eb-8195-daef9a8997f6.png)
  -사진9-(Annieway)
 
@@ -170,7 +170,7 @@ http://www.cvlibs.net/datasets/kitti/ (KITTI)
 <차선인식>
 다음은 차선 인식과 관련된 코드이다.
 
-'''python3
+```python3
 import cv2 # opencv 사용
 import numpy as np
 
@@ -232,7 +232,7 @@ hough_img = hough_lines(ROI_img, 1, 1 * np.pi/180, 30, 10, 20) # 허프 변환
 result = weighted_img(hough_img, image) # 원본 이미지에 검출된 선 overlap
 cv2.imshow('result',result) # 결과 이미지 출력
 cv2.waitKey(0) 
-'''
+```
 
 
 
