@@ -78,7 +78,7 @@
 ## #2
 <KITTI dataset>
 
-![image](https://user-images.githubusercontent.com/81850912/113657869-d88b2780-96d9-11eb-8fe2-f788dea15181.png)
+![image](https://user-images.githubusercontent.com/81850912/113658991-18eba500-96dc-11eb-8195-daef9a8997f6.png)
  -사진9-(Annieway)
 
 KITTI dataset은 Annieway(사진9)를 이용해 운행을 하면서 거리의 영상을 깊이 값과 함께 담아낸 데이터셋이다.
@@ -100,13 +100,13 @@ KIT(karlsruhe institute of Technology)에서는 자율주행 플랫폼 Annieway�
 -사진14-
 
 데이터셋의 구성은 다음과 같다
--Stereo 2015/ flow 2015/ scene flow 2015 data set (2 GB)
--Annotated depth map data set (14 GB)
--Projected raw LiDaR scans data set (5 GB)
--Manually selected validation and test data sets (2 GB)
--Odometry data set (grayscale, 22 GB)
--Left color images of object data set (12 GB)
--Left color images of tracking data set (15 GB)
+- Stereo 2015/ flow 2015/ scene flow 2015 data set (2 GB)
+- Annotated depth map data set (14 GB)
+- Projected raw LiDaR scans data set (5 GB)
+- Manually selected validation and test data sets (2 GB)
+- Odometry data set (grayscale, 22 GB)
+- Left color images of object data set (12 GB)
+- Left color images of tracking data set (15 GB)
 
 
 
@@ -120,7 +120,7 @@ nuTonomy scenes 또는 nuScenes는 자율주행을 위한 대규모 공개 데�
  -사진7-
 
 1) 데이터 수집
-- 장면계획-
+-장면계획-
 nuScenes 데이터 세트의 경우 보스턴과 싱가포르에서 약 15 시간의 운전 데이터를 수집한다. 전체 nuScenes 데이터 세트의 경우 Boston Seaport 및 싱가포르의 One North , Queenstown 및 Holland Village 지구에서 데이터를 게시한다 . 까다로운 시나리오를 포착하기 위해 운전 경로가 신중하게 선택된다. 다양한 위치, 시간 및 기상 조건을 목표로 한다. 클래스 빈도 분포의 균형을 맞추기 위해 희귀 클래스 (예 : 자전거)가 있는 장면을 더 많이 포함한다. 이러한 기준을 사용하여 각각 20 초 길이의 장면 1000 개를 수동으로 선택한다.
 
 -자동차 설정 -
@@ -149,6 +149,92 @@ https://rdx-live.tistory.com/90 (자율주행 오픈소스 데이터셋)
 https://bair.berkeley.edu/blog/2018/05/30/bdd/ (BBD100K)
 https://www.nuscenes.org/nuscenes?tutorial=nuscenes (nuScenes)
 http://www.cvlibs.net/datasets/kitti/ (KITTI)
+
+
+
+
+
+
+
+
+## ##자율주행 인지와 관련된 opensource##
+우선 코드를 이해하기 위해 필요한 OpenCV의 몇 가지 라이브러리 함수들을 정리해보았다. 
+(1)	cvtColor()  복잡한 데이터 형식의 컬러 영상을 단순한 회색조 영상으로 변환
+(2)	threshold()  임계값을 기준으로 어두우면 검은색, 밝으면 흰색이 되게 만들어준다. (이진화 시켜준다)
+(3)	Canny()  이진화된 영상에서 흰색과 검은색의 경계선을 추출한다. 이를 통해 윤곽선을 검출할 수 있다.
+(4)	HoughLines()  윤곽선 중 직선 요소들을 검출하여 그 중 적합한 직선을 차선으로 선택한다.
+(5)	HoughLineP()  위의 함수와 다르게 선분을 출력한다.
+
+## #1 
+<차선인식>
+다음은 차선 인식과 관련된 코드이다.
+
+'''python
+import cv2 # opencv 사용
+import numpy as np
+
+
+def grayscale(img): # 흑백이미지로 변환
+    return cv2.cvtColor(img, cv2.COLOR_RGB2GRAY)
+
+def canny(img, low_threshold, high_threshold): # Canny 알고리즘
+    return cv2.Canny(img, low_threshold, high_threshold)
+
+def gaussian_blur(img, kernel_size): # 가우시안 필터
+    return cv2.GaussianBlur(img, (kernel_size, kernel_size), 0)
+
+def region_of_interest(img, vertices, color3=(255,255,255), color1=255): # ROI 셋팅
+
+    mask = np.zeros_like(img) # mask = img와 같은 크기의 빈 이미지
+    
+    if len(img.shape) > 2: # Color 이미지(3채널)라면 :
+        color = color3
+    else: # 흑백 이미지(1채널)라면:
+        color = color1
+        
+    # vertices에 정한 점들로 이뤄진 다각형부분(ROI 설정부분)을 color로 채움 
+    cv2.fillPoly(mask, vertices, color)
+    
+    # 이미지와 color로 채워진 ROI를 합침
+    ROI_image = cv2.bitwise_and(img, mask)
+    return ROI_image
+
+def draw_lines(img, lines, color=[0, 0, 255], thickness=2): # 선 그리기
+    for line in lines:
+        for x1,y1,x2,y2 in line:
+            cv2.line(img, (x1, y1), (x2, y2), color, thickness)
+
+def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap): # 허프 변환
+    lines = cv2.HoughLinesP(img, rho, theta, threshold, np.array([]), minLineLength=min_line_len, maxLineGap=max_line_gap)
+    line_img = np.zeros((img.shape[0], img.shape[1], 3), dtype=np.uint8)
+    draw_lines(line_img, lines)
+
+    return line_img
+
+def weighted_img(img, initial_img, α=1, β=1., λ=0.): # 두 이미지 operlap 하기
+    return cv2.addWeighted(initial_img, α, img, β, λ)
+ 
+image = cv2.imread('C:/Users/nicki/Downloads/solidWhiteCurve.jpg') # 이미지 읽기
+height, width = image.shape[:2] # 이미지 높이, 너비
+
+gray_img = grayscale(image) # 흑백이미지로 변환
+    
+blur_img = gaussian_blur(gray_img, 3) # Blur 효과
+        
+canny_img = canny(blur_img, 70, 210) # Canny edge 알고리즘
+
+vertices = np.array([[(50,height),(width/2-45, height/2+60), (width/2+45, height/2+60), (width-50,height)]], dtype=np.int32)
+ROI_img = region_of_interest(canny_img, vertices) # ROI 설정
+
+hough_img = hough_lines(ROI_img, 1, 1 * np.pi/180, 30, 10, 20) # 허프 변환
+
+result = weighted_img(hough_img, image) # 원본 이미지에 검출된 선 overlap
+cv2.imshow('result',result) # 결과 이미지 출력
+cv2.waitKey(0) 
+'''
+
+
+
 
 
 
