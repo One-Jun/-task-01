@@ -77,6 +77,7 @@
 
 ## #2
 <KITTI dataset>
+
 ![image](https://user-images.githubusercontent.com/81850912/113657869-d88b2780-96d9-11eb-8fe2-f788dea15181.png)
  -사진9-(Annieway)
 
@@ -99,13 +100,13 @@ KIT(karlsruhe institute of Technology)에서는 자율주행 플랫폼 Annieway�
 -사진14-
 
 데이터셋의 구성은 다음과 같다
-Stereo 2015/ flow 2015/ scene flow 2015 data set (2 GB)
-Annotated depth map data set (14 GB)
-Projected raw LiDaR scans data set (5 GB)
-Manually selected validation and test data sets (2 GB)
-Odometry data set (grayscale, 22 GB)
-Left color images of object data set (12 GB)
-Left color images of tracking data set (15 GB)
+-Stereo 2015/ flow 2015/ scene flow 2015 data set (2 GB)
+-Annotated depth map data set (14 GB)
+-Projected raw LiDaR scans data set (5 GB)
+-Manually selected validation and test data sets (2 GB)
+-Odometry data set (grayscale, 22 GB)
+-Left color images of object data set (12 GB)
+-Left color images of tracking data set (15 GB)
 
 
 
@@ -119,11 +120,12 @@ nuTonomy scenes 또는 nuScenes는 자율주행을 위한 대규모 공개 데�
  -사진7-
 
 1) 데이터 수집
-- 장면계획
+- 장면계획-
 nuScenes 데이터 세트의 경우 보스턴과 싱가포르에서 약 15 시간의 운전 데이터를 수집한다. 전체 nuScenes 데이터 세트의 경우 Boston Seaport 및 싱가포르의 One North , Queenstown 및 Holland Village 지구에서 데이터를 게시한다 . 까다로운 시나리오를 포착하기 위해 운전 경로가 신중하게 선택된다. 다양한 위치, 시간 및 기상 조건을 목표로 한다. 클래스 빈도 분포의 균형을 맞추기 위해 희귀 클래스 (예 : 자전거)가 있는 장면을 더 많이 포함한다. 이러한 기준을 사용하여 각각 20 초 길이의 장면 1000 개를 수동으로 선택한다.
--자동차 설정 
+
+-자동차 설정 -
 ![image](https://user-images.githubusercontent.com/81850912/113658130-6a933000-96da-11eb-9f44-b5ffb35c8375.png)
-   -사진8-
+-사진8-
 
 보스턴과 싱가포르에서 운전하기 위해 센서 레이아웃이 동일한 두 대의 르노조이 자동차를 사용한다. 데이터는 연구 플랫폼에서 수집되었으며 Motional 제품에 사용된 설정을 나타내지 않는다. 센서 배치는 위의 사진8을 참조하십시오. 다음은 센서 데이터를 공개합니다.
  
@@ -142,6 +144,7 @@ nuScenes 데이터 세트의 경우 보스턴과 싱가포르에서 약 15 시�
 
 
 -출처-
+
 https://rdx-live.tistory.com/90 (자율주행 오픈소스 데이터셋)
 https://bair.berkeley.edu/blog/2018/05/30/bdd/ (BBD100K)
 https://www.nuscenes.org/nuscenes?tutorial=nuscenes (nuScenes)
