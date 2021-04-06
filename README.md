@@ -76,8 +76,8 @@
 
 
 ## #2
-## <KITTI dataset>
------------------------
+## < KITTI dataset >
+
 ![image](https://user-images.githubusercontent.com/81850912/113658991-18eba500-96dc-11eb-8195-daef9a8997f6.png)
  -사진9-(Annieway)
 
@@ -168,6 +168,7 @@ http://www.cvlibs.net/datasets/kitti/ (KITTI)
 
 ## #1 
 <차선인식>
+
 다음은 차선 인식과 관련된 코드이다.
 
 ```python3
@@ -236,6 +237,116 @@ cv2.waitKey(0)
 
 
 
+## #2
+<차량인식>
 
+```python
+import numpy as np
+import matplotlib.pyplot as plt
+import cv2
+import glob
+from moviepy.editor import VideoFileClip
+from IPython.display import HTML
+%matplotlib inline
+
+import keras # broken for keras >= 2.0, use 1.2.2
+from keras.models import Sequential
+from keras.layers.convolutional import Convolution2D, MaxPooling2D
+from keras.layers.advanced_activations import LeakyReLU
+from keras.layers.core import Flatten, Dense, Activation, Reshape
+
+from utils import load_weights, Box, yolo_net_out_to_car_boxes, draw_box
+```
+
+텐서플로우의 백엔드를 이용함
+다음은 tiny-yolo 모델을 구성하는 것이다. 
+
+
+```python
+keras.backend.set_image_dim_ordering('th')
+model = Sequential()
+model.add(Convolution2D(16, 3, 3,input_shape=(3,448,448),border_mode='same',subsample=(1,1)))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2)))
+model.add(Convolution2D(32,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),border_mode='valid'))
+model.add(Convolution2D(64,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),border_mode='valid'))
+model.add(Convolution2D(128,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),border_mode='valid'))
+model.add(Convolution2D(256,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),border_mode='valid'))
+model.add(Convolution2D(512,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(MaxPooling2D(pool_size=(2, 2),border_mode='valid'))
+model.add(Convolution2D(1024,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(Convolution2D(1024,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(Convolution2D(1024,3,3 ,border_mode='same'))
+model.add(LeakyReLU(alpha=0.1))
+model.add(Flatten())
+model.add(Dense(256))
+model.add(Dense(4096))
+model.add(LeakyReLU(alpha=0.1))
+model.add(Dense(1470))
+model.summary()
+```
+
+![image](https://user-images.githubusercontent.com/81850912/113663732-80f2b900-96e5-11eb-9117-7486f908754a.png)
+
+
+yolo에 사전 훈련된 가중치에서 가중치를 로드한다.
+
+
+```python
+load_weights(model,'./yolo-tiny.weights')
+```
+
+다음은 모델에 테스트 이미지를 적용시켜본다.
+
+
+```python
+imagePath = './test_images/test1.jpg'
+image = plt.imread(imagePath)
+image_crop = image[300:650,500:,:]
+resized = cv2.resize(image_crop,(448,448))
+
+batch = np.transpose(resized,(2,0,1))
+batch = 2*(batch/255.) - 1
+batch = np.expand_dims(batch, axis=0)
+out = model.predict(batch)
+```
+
+신경망에서 벡터를 interpolate하고 상자를 생성시킨다.
+
+
+```python
+boxes = yolo_net_out_to_car_boxes(out[0], threshold = 0.17)
+```
+
+원본 사진에 상자를 시각화한다.
+
+```python
+f,(ax1,ax2) = plt.subplots(1,2,figsize=(16,6))
+ax1.imshow(image)
+ax2.imshow(draw_box(boxes,plt.imread(imagePath),[[500,1280],[300,650]]))
+```
+
+![image](https://user-images.githubusercontent.com/81850912/113663896-cb743580-96e5-11eb-9a3a-3a54c8817a82.png)
+
+
+
+
+## ## #1의 차선인식 코드를 실행한 결과##
+
+![image](https://user-images.githubusercontent.com/81850912/113663987-f494c600-96e5-11eb-8bf7-9ef1ffa0ad0c.png)
+
+ 
+성공적으로 차선을 감지하고 빨간선으로 출력된 모습을 볼 수 있다.
 
 
