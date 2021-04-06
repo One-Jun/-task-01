@@ -216,7 +216,7 @@ def hough_lines(img, rho, theta, threshold, min_line_len, max_line_gap): # 허�
 def weighted_img(img, initial_img, α=1, β=1., λ=0.): # 두 이미지 operlap 하기
     return cv2.addWeighted(initial_img, α, img, β, λ)
  
-image = cv2.imread('C:/Users/nicki/Downloads/solidWhiteCurve.jpg') # 이미지 읽기
+image = cv2.imread('soildWhiteCurve.jpg') # 이미지 읽기
 height, width = image.shape[:2] # 이미지 높이, 너비
 
 gray_img = grayscale(image) # 흑백이미지로 변환
